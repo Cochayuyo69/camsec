@@ -1,14 +1,37 @@
-// Archivo de configuración de Gradle de nivel de proyecto (raíz)
-// Este archivo define configuraciones globales para todos los módulos
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-plugins {
-    // Plugin para herramientas de Android
-    id 'com.android.application' version '8.2.2' apply false
-    id 'com.android.library' version '8.2.2' apply false
+// Bloque de gestión de plugins: Define dónde buscar y las versiones de los plugins
+buildscript {
+    ext {
+        // Versiones de los plugins para ser usadas en el módulo
+        android_gradle_plugin_version = '8.2.0'
+        kotlin_gradle_plugin_version = '1.9.22'
+        firebase_plugin_version = '4.4.2'
+    }
 
-    // Plugin para Kotlin
-    id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
+    // Repositorios donde se buscan los PLUGINS
+    repositories {
+        google()
+        mavenCentral()
+    }
 
-    // Plugin para Google Services (Firebase)
-    id 'com.google.gms.google-services' version '4.4.4' apply false
+    // Dependencias de los PLUGINS
+    dependencies {
+        classpath "com.android.tools.build:gradle:$android_gradle_plugin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_plugin_version"
+        classpath "com.google.gms:google-services:$firebase_plugin_version"
+    }
+}
+
+// Repositorios donde se buscan las dependencias de la aplicación (Compose, Retrofit, etc.)
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// Tarea para limpiar el proyecto (opcional pero útil)
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
 }

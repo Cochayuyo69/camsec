@@ -1,6 +1,5 @@
-// Configuración de Gradle para el proyecto
-// Este archivo define qué módulos se incluyen en el proyecto
-
+// Bloque pluginManagement: Le dice a Gradle dónde buscar los plugins de forma global
+// Esto es crucial para que Android Studio resuelva correctamente la configuración.
 pluginManagement {
     repositories {
         google()
@@ -9,13 +8,10 @@ pluginManagement {
     }
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+// Define el nombre del proyecto raíz (el nombre de tu carpeta principal)
+rootProject.name = "CAMSEC"
 
-rootProject.name = "MobileSecurityApp"
-include ':android_app'
+// Incluye el módulo de la aplicación con el nombre estándar ":app"
+// y le indica a Gradle que lo encuentre en la carpeta "android_app"
+include ':app'
+project(':app').projectDir = file('android_app')

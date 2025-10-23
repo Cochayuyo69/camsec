@@ -15,7 +15,7 @@ interface ApiService {
     suspend fun getCamera(@Path("id") id: String): Response<Camera>
 
     companion object {
-        private const val BASE_URL = "http://10.0.2.2:3000/" // Android emulator localhost
+        private const val BASE_URL = "http://168.174.41.93:3000/" // Android emulator localhost
 
         fun create(): ApiService {
             return Retrofit.Builder()
