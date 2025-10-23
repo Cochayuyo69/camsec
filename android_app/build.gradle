@@ -66,8 +66,10 @@ dependencies {
     // Navegación con Jetpack Navigation
     implementation 'androidx.navigation:navigation-compose:2.7.6'
 
-    // Firebase Firestore para base de datos en la nube
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.10.1'
+    // Firebase BoM (Bill of Materials) para versiones consistentes
+    implementation platform('com.google.firebase:firebase-bom:34.4.0')
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-analytics'
 
     // Retrofit para llamadas HTTP al backend Node.js
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

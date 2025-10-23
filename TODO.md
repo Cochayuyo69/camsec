@@ -10,7 +10,7 @@
 - [x] Integrar Firebase en el proyecto Android (build.gradle, google-services.json).
 - [x] Implementar pantallas básicas con Jetpack Compose (CameraListScreen, CameraDetailScreen).
 - [x] Configurar navegación con Jetpack Navigation.
-- [x] Pruebas en emulador Android.
+- [ ] Pruebas en emulador Android.
 
 ## Notas
 - Base de datos: Firebase Firestore para almacenamiento en la nube de datos de cámaras (id, name, status, lastActivity).

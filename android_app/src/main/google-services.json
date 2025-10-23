@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "80121223649",
+    "project_id": "camaraseguridadapp-62029",
+    "storage_bucket": "camaraseguridadapp-62029.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80121223649:android:7f13dac26eecbdf0401aa0",
+        "android_client_info": {
+          "package_name": "com.company.SegurityApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6C89TkOes0X0Evtpdr8dzcKRzlnVWsAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
