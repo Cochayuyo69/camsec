@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cámara en Vivo</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #f0f0f0; }
+        #videoPlayer { border: 2px solid #333; background-color: black; }
+        .status { margin-top: 10px; font-weight: bold; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Visualización de Cámara en Vivo (WebM)</h1>
+    <video id="videoPlayer" controls autoplay muted></video>
+    <div id="status" class="status">Conectando...</div>
+
+    <script>
+        const video = document.getElementById('videoPlayer');
+        const statusDiv = document.getElementById('status');
+        let mediaSource = null;
+        let sourceBuffer = null;
+        let queue = [];
+        let isBuffering = false;
+
+        function updateStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${isError ? 'error' : 'success'}`;
+        }
+
+        if ('MediaSource' in window && MediaSource.isTypeSupported('video/webm; codecs="vp8"')) {
+            mediaSource = new MediaSource();
+            video.src = URL.createObjectURL(mediaSource);
+
+            mediaSource.addEventListener('sourceopen', () => {
+                console.log('MediaSource abierto');
+                updateStatus('MediaSource abierto, esperando datos de video...');
+
+                // Crea un SourceBuffer para el formato WebM (VP8)
+                sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+
+                sourceBuffer.addEventListener('updateend', () => {
+                    // Cuando el SourceBuffer termina de procesar datos
+                    if (queue.length > 0) {
+                        const chunk = queue.shift();
+                        sourceBuffer.appendBuffer(chunk);
+                    } else {
+                        isBuffering = false;
+                        if (!video.paused) {
+                            updateStatus('Reproduciendo video...');
+                        }
+                    }
+                });
+
+                // Inicia la conexión WebSocket
+                const ws = new WebSocket('ws://localhost:3000'); // Conéctate al mismo puerto del servidor Node.js
+
+                ws.onopen = () => {
+                    console.log('Conexión WebSocket establecida.');
+                    updateStatus('Conectado al servidor de streaming.');
+                };
+
+                ws.onmessage = event => {
+                    if (event.data instanceof Blob) {
+                        event.data.arrayBuffer().then(buffer => {
+                            if (sourceBuffer && !sourceBuffer.updating) {
+                                sourceBuffer.appendBuffer(buffer);
+                                if (video.paused) {
+                                    video.play().catch(e => console.error("Error al reproducir video:", e));
+                                    updateStatus('Reproduciendo video...');
+                                }
+                            } else {
+                                queue.push(buffer);
+                                isBuffering = true;
+                                updateStatus('Bufferizando video...', false);
+                            }
+                        }).catch(e => {
+                            console.error('Error al convertir Blob a ArrayBuffer:', e);
+                            updateStatus('Error al procesar datos del video.', true);
+                        });
+                    } else if (typeof event.data === 'string') {
+                        try {
+                            const message = JSON.parse(event.data);
+                            if (message.error) {
+                                console.error('Error del servidor:', message.error);
+                                updateStatus(`Error del servidor: ${message.error}`, true);
+                                ws.close();
+                            }
+                        } catch (e) {
+                            console.warn('Mensaje WebSocket no JSON:', event.data);
+                        }
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.log('Conexión WebSocket cerrada.');
+                    updateStatus('Conexión con el servidor perdida.', true);
+                    if (mediaSource && mediaSource.readyState === 'open') {
+                        try {
+                            mediaSource.endOfStream();
+                        } catch (e) {
+                            console.error('Error al finalizar el stream:', e);
+                        }
+                    }
+                };
+
+                ws.onerror = error => {
+                    console.error('Error en WebSocket:', error);
+                    updateStatus('Error de conexión WebSocket.', true);
+                };
+            }, false); // El segundo argumento "false" es para IE11, en navegadores modernos no es necesario.
+        } else {
+            updateStatus('Tu navegador no soporta MediaSource API o el codec VP8 para WebM.', true);
+            console.error('MediaSource API o el codec VP8 no son soportados.');
+        }
+
+        // Manejar pausa/reproducción del video
+        video.addEventListener('play', () => {
+            updateStatus('Reproduciendo video...');
+        });
+        video.addEventListener('pause', () => {
+            updateStatus('Video pausado.');
+        });
+        video.addEventListener('waiting', () => {
+            updateStatus('Bufferizando...', false);
+        });
+        video.addEventListener('playing', () => {
+            updateStatus('Reproduciendo video...');
+        });
+        video.addEventListener('stalled', () => {
+            updateStatus('Flujo de video detenido.', true);
+        });
+        video.addEventListener('error', (e) => {
+            console.error('Error en el elemento de video:', e);
+            updateStatus('Error en la reproducción de video.', true);
+        });
+
+    </script>
+</body>
+</html>
